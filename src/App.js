@@ -58,7 +58,7 @@ function Children() {
       }
     );
     return () => unsubscribe();
-  });
+  }, []);
 
   const classes = useStyles();
   const colors = ["blue", "pink", "purple"];

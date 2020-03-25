@@ -4,11 +4,9 @@ import "./App.css";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import Divider from "@material-ui/core/Divider";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
-import Typography from "@material-ui/core/Typography";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
 import CardContent from "@material-ui/core/CardContent";
@@ -21,7 +19,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogActions from "@material-ui/core/DialogActions";
-import { deepPurple, blue, pink } from "@material-ui/core/colors";
+import { deepPurple, blue, pink, yellow } from "@material-ui/core/colors";
 import { db } from "./firebase";
 
 const useStyles = makeStyles(theme => ({
@@ -36,6 +34,10 @@ const useStyles = makeStyles(theme => ({
   blue: {
     color: theme.palette.getContrastText(blue[500]),
     backgroundColor: blue[500]
+  },
+  yellow: {
+    color: theme.palette.getContrastText(yellow[600]),
+    backgroundColor: yellow[600]
   }
 }));
 
@@ -73,36 +75,37 @@ function Children() {
     setUserSelected(id);
   };
   const handleClose = value => {
-
     setOpen(false);
+    if (value) {
+      const tokens = children.filter(child => child.id === userSelected)[0]
+        .tokens;
+      console.log(tokens);
 
-    const tokens = children.filter(child => child.id === userSelected)[0].tokens;
-    console.log(tokens);
-    
-    db.collection("children")
-      .doc(userSelected)
-      .update({
-        tokens: [...tokens, value]
-      });
+      db.collection("children")
+        .doc(userSelected)
+        .update({
+          tokens: [...tokens, value]
+        });
+    }
   };
 
   const handleCloseUseAlert = () => setOpenUseAlert(false);
   const handleOpenUseAlert = (tokenIdx, id) => {
-    setOpenUseAlert(true)
-    setTokenIdx(tokenIdx)
-    setUserSelected(id)
+    setOpenUseAlert(true);
+    setTokenIdx(tokenIdx);
+    setUserSelected(id);
   };
 
   const handleUseTokenConfirm = () => {
-    setOpenUseAlert(false)
+    setOpenUseAlert(false);
     let tokens = children.filter(child => child.id === userSelected)[0].tokens;
-    tokens.splice(tokenIdx, 1)
+    tokens.splice(tokenIdx, 1);
     db.collection("children")
       .doc(userSelected)
       .update({
         tokens: [...tokens]
       });
-  }
+  };
 
   return (
     <div>
@@ -113,7 +116,8 @@ function Children() {
               <CardHeader
                 title={name}
                 subheader={`${tokens.reduce(
-                  (sum, curr) => sum + curr, 0
+                  (sum, curr) => sum + curr,
+                  0
                 )} mins total`}
                 avatar={
                   <Avatar className={classes[colors[idx]]}>{name[0]}</Avatar>
@@ -122,7 +126,10 @@ function Children() {
               <CardContent>
                 <Grid>
                   {tokens.map((token, idx) => (
-                    <Button key={idx} onClick={() => handleOpenUseAlert(idx, id)}>
+                    <Button
+                      key={idx}
+                      onClick={() => handleOpenUseAlert(idx, id)}
+                    >
                       {token}
                     </Button>
                   ))}
@@ -145,7 +152,11 @@ function Children() {
         open={open}
         onClose={handleClose}
       />
-      <UseTokenDialog open={openUseAlert} onClose={handleCloseUseAlert} confirmClose={handleUseTokenConfirm}/>
+      <UseTokenDialog
+        open={openUseAlert}
+        onClose={handleCloseUseAlert}
+        confirmClose={handleUseTokenConfirm}
+      />
     </div>
   );
 }
@@ -161,7 +172,8 @@ function App() {
 }
 
 function AddTokenDialog({ onClose, selectedValue, open }) {
-  const handleClose = () => onClose(selectedValue);
+  const classes = useStyles();
+  const handleClose = () => onClose();
   const handleTokenClick = value => onClose(value);
   const tokens = [5, 10, 15, 20, 25, 30, 60];
 
@@ -172,20 +184,20 @@ function AddTokenDialog({ onClose, selectedValue, open }) {
       open={open}
     >
       <DialogTitle id="simple-dialog-title">Add Token</DialogTitle>
-      <List>
-        {tokens.map(token => (
-            <ListItem
+      <DialogContent>
+        <Grid container spacing={4}>
+          {tokens.map(token => (
+            <Grid
+              item
               button
               onClick={() => handleTokenClick(token)}
               key={token}
             >
-              <ListItemAvatar>
-                <Avatar>{token}</Avatar>
-              </ListItemAvatar>
-              <ListItemText primary={`${token} minutes`} />
-            </ListItem>
-        ))}
-      </List>
+              <Avatar className={classes.yellow}>{token}</Avatar>
+            </Grid>
+          ))}
+        </Grid>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -206,7 +218,7 @@ function UseTokenDialog({ onClose, open, confirmClose }) {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleConfirm} color="primary">
+        <Button variant="contained" onClick={handleConfirm} color="primary">
           Yes I want to have fun!
         </Button>
         <Button onClick={handleClose} color="primary" autoFocus>

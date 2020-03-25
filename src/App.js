@@ -113,7 +113,7 @@ function Children() {
               <CardHeader
                 title={name}
                 subheader={`${tokens.reduce(
-                  (sum, curr) => sum + curr
+                  (sum, curr) => sum + curr, 0
                 )} mins total`}
                 avatar={
                   <Avatar className={classes[colors[idx]]}>{name[0]}</Avatar>
